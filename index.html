@@ -1,0 +1,1426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>N9NE — Clothing</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #FF2A1F;
+    --black: #0A0A0A;
+    --white: #F5F5F0;
+    --gray: #1A1A1A;
+    --gray2: #2A2A2A;
+    --muted: #888;
+    --border: rgba(255,255,255,0.08);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Barlow', sans-serif;
+    font-weight: 300;
+    cursor: none;
+    overflow-x: hidden;
+  }
+
+  /* CURSOR */
+  #cursor {
+    position: fixed; width: 12px; height: 12px;
+    background: var(--red); border-radius: 50%;
+    pointer-events: none; z-index: 9999;
+    transform: translate(-50%,-50%);
+    transition: width 0.2s, height 0.2s, background 0.2s;
+  }
+  #cursor.big { width: 40px; height: 40px; background: rgba(255,42,31,0.3); }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 48px;
+    background: rgba(10,10,10,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px; letter-spacing: 4px; color: var(--white);
+    cursor: pointer;
+  }
+  .nav-logo span { color: var(--red); }
+  .nav-links { display: flex; gap: 36px; list-style: none; }
+  .nav-links li a {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--muted); text-decoration: none;
+    transition: color 0.2s; cursor: pointer;
+  }
+  .nav-links li a:hover { color: var(--white); }
+  .nav-right { display: flex; align-items: center; gap: 20px; }
+  .cart-btn {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px; letter-spacing: 2px; text-transform: uppercase;
+    background: none; border: 1px solid var(--border);
+    color: var(--white); padding: 8px 20px; cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .cart-btn:hover { border-color: var(--red); background: rgba(255,42,31,0.08); }
+  .cart-count {
+    display: inline-block; background: var(--red);
+    color: #fff; font-size: 10px; font-weight: 700;
+    width: 18px; height: 18px; border-radius: 50%;
+    text-align: center; line-height: 18px; margin-left: 6px;
+  }
+
+  /* PAGES */
+  .page { display: none; min-height: 100vh; padding-top: 80px; }
+  .page.active { display: block; }
+
+  /* ====== HOME PAGE ====== */
+  .hero {
+    position: relative; min-height: calc(100vh - 80px);
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a0000 50%, #0a0a0a 100%);
+  }
+  .hero-grid {
+    position: absolute; inset: 0; opacity: 0.04;
+    background-image: repeating-linear-gradient(0deg, var(--white) 0, var(--white) 1px, transparent 1px, transparent 60px),
+                      repeating-linear-gradient(90deg, var(--white) 0, var(--white) 1px, transparent 1px, transparent 60px);
+  }
+  .hero-content {
+    position: relative; text-align: center; z-index: 2;
+    animation: fadeUp 0.8s ease both;
+  }
+  .hero-eyebrow {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px; letter-spacing: 6px; text-transform: uppercase;
+    color: var(--red); margin-bottom: 24px;
+  }
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(120px, 18vw, 260px);
+    line-height: 0.85; letter-spacing: 8px;
+    color: var(--white);
+  }
+  .hero-title .nine { color: var(--red); }
+  .hero-sub {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px; letter-spacing: 8px; text-transform: uppercase;
+    color: var(--muted); margin-top: 20px; margin-bottom: 48px;
+  }
+  .btn-primary {
+    display: inline-block;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px; letter-spacing: 4px; text-transform: uppercase;
+    background: var(--red); color: #fff;
+    padding: 16px 48px; border: none; cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(255,42,31,0.4); }
+  .btn-outline {
+    display: inline-block;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px; letter-spacing: 4px; text-transform: uppercase;
+    background: transparent; color: var(--white);
+    padding: 16px 48px; border: 1px solid rgba(255,255,255,0.3); cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    text-decoration: none; margin-left: 16px;
+  }
+  .btn-outline:hover { border-color: var(--white); background: rgba(255,255,255,0.05); }
+
+  .marquee-wrap {
+    overflow: hidden; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    padding: 14px 0; background: var(--gray);
+  }
+  .marquee-inner {
+    display: flex; gap: 0; white-space: nowrap;
+    animation: marquee 18s linear infinite;
+  }
+  .marquee-item {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 14px; letter-spacing: 6px; color: var(--muted);
+    padding: 0 40px;
+  }
+  .marquee-item span { color: var(--red); }
+
+  /* COLLECTIONS */
+  .section { padding: 100px 48px; }
+  .section-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px; letter-spacing: 5px; text-transform: uppercase;
+    color: var(--red); margin-bottom: 12px;
+  }
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(40px, 6vw, 80px); letter-spacing: 4px;
+    color: var(--white); margin-bottom: 60px;
+  }
+
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2px;
+  }
+  .product-card {
+    position: relative; overflow: hidden; cursor: pointer;
+    background: var(--gray);
+    transition: transform 0.3s;
+  }
+  .product-card:hover { transform: scale(1.01); z-index: 2; }
+  .product-img {
+    width: 100%; aspect-ratio: 3/4;
+    object-fit: cover; display: block;
+    transition: transform 0.5s;
+  }
+  .product-card:hover .product-img { transform: scale(1.06); }
+  .product-img-placeholder {
+    width: 100%; aspect-ratio: 3/4;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 80px; letter-spacing: 4px;
+    transition: transform 0.5s;
+  }
+  .product-card:hover .product-img-placeholder { transform: scale(1.06); }
+  .product-overlay {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 24px;
+    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%);
+    transform: translateY(8px); transition: transform 0.3s;
+  }
+  .product-card:hover .product-overlay { transform: translateY(0); }
+  .product-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px; font-weight: 600; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--white);
+  }
+  .product-price {
+    font-size: 15px; color: var(--red); margin-top: 4px;
+    font-family: 'Barlow Condensed', sans-serif; letter-spacing: 1px;
+  }
+  .product-tag {
+    position: absolute; top: 16px; left: 16px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+    background: var(--red); color: #fff; padding: 4px 10px;
+  }
+  .add-to-cart-overlay {
+    position: absolute; top: 16px; right: 16px;
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .product-card:hover .add-to-cart-overlay { opacity: 1; }
+  .add-to-cart-overlay button {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+    background: var(--white); color: var(--black);
+    border: none; padding: 8px 14px; cursor: pointer;
+    font-weight: 600;
+  }
+
+  /* ====== SHOP PAGE ====== */
+  .shop-header {
+    padding: 60px 48px 40px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: flex-end; justify-content: space-between;
+  }
+  .filter-bar {
+    padding: 20px 48px; display: flex; gap: 12px; align-items: center;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .filter-btn {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px; letter-spacing: 3px; text-transform: uppercase;
+    background: none; border: 1px solid var(--border);
+    color: var(--muted); padding: 8px 18px; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .filter-btn.active, .filter-btn:hover {
+    border-color: var(--red); color: var(--white); background: rgba(255,42,31,0.08);
+  }
+  .shop-grid { padding: 40px 48px; }
+
+  /* ====== PRODUCT DETAIL ====== */
+  #product-detail {
+    display: grid; grid-template-columns: 1fr 1fr;
+    min-height: calc(100vh - 80px); gap: 0;
+  }
+  .pd-image {
+    background: var(--gray);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 120px; letter-spacing: 4px;
+    min-height: 600px;
+  }
+  .pd-info { padding: 80px 64px; }
+  .pd-brand {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px; letter-spacing: 5px; text-transform: uppercase;
+    color: var(--red); margin-bottom: 12px;
+  }
+  .pd-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 60px; letter-spacing: 4px; line-height: 1;
+    margin-bottom: 20px;
+  }
+  .pd-price {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 32px; font-weight: 600; color: var(--red); margin-bottom: 36px;
+  }
+  .pd-desc {
+    font-size: 15px; line-height: 1.8; color: var(--muted); margin-bottom: 36px;
+    max-width: 420px;
+  }
+  .size-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px; letter-spacing: 4px; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 14px;
+  }
+  .size-options { display: flex; gap: 10px; margin-bottom: 36px; flex-wrap: wrap; }
+  .size-btn {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px; letter-spacing: 2px;
+    width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--border); background: none;
+    color: var(--muted); cursor: pointer; transition: all 0.2s;
+  }
+  .size-btn.active, .size-btn:hover { border-color: var(--white); color: var(--white); }
+  .qty-row { display: flex; align-items: center; gap: 16px; margin-bottom: 28px; }
+  .qty-ctrl {
+    display: flex; align-items: center;
+    border: 1px solid var(--border);
+  }
+  .qty-ctrl button {
+    width: 42px; height: 42px; background: none; border: none;
+    color: var(--white); font-size: 18px; cursor: pointer;
+    transition: background 0.2s;
+  }
+  .qty-ctrl button:hover { background: var(--gray2); }
+  .qty-ctrl span {
+    width: 42px; text-align: center;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px; font-weight: 500;
+  }
+  .pd-actions { display: flex; gap: 12px; }
+  .pd-actions .btn-primary { flex: 1; padding: 18px 24px; font-size: 14px; }
+
+  /* ====== CART ====== */
+  .cart-layout { display: grid; grid-template-columns: 1fr 380px; gap: 2px; min-height: calc(100vh - 80px); }
+  .cart-items { padding: 60px 48px; }
+  .cart-summary { padding: 60px 40px; background: var(--gray); }
+  .cart-item {
+    display: grid; grid-template-columns: 100px 1fr auto;
+    gap: 20px; align-items: center;
+    padding: 24px 0; border-bottom: 1px solid var(--border);
+  }
+  .cart-item-img {
+    background: var(--gray2);
+    aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--muted);
+  }
+  .cart-item-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .cart-item-meta { font-size: 13px; color: var(--muted); }
+  .cart-item-price {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px; font-weight: 600; color: var(--red);
+    text-align: right;
+  }
+  .cart-remove {
+    background: none; border: none; color: var(--muted);
+    font-size: 18px; cursor: pointer; padding: 4px;
+    display: block; margin-top: 8px; text-align: right;
+    transition: color 0.2s;
+  }
+  .cart-remove:hover { color: var(--red); }
+  .summary-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px; letter-spacing: 4px; margin-bottom: 36px;
+  }
+  .summary-row {
+    display: flex; justify-content: space-between;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px; padding: 12px 0; border-bottom: 1px solid var(--border);
+  }
+  .summary-row.total {
+    font-size: 22px; font-weight: 600; border: none;
+    margin-top: 12px; color: var(--white);
+  }
+  .summary-row.total span:last-child { color: var(--red); }
+  .promo-row { margin: 20px 0; display: flex; gap: 8px; }
+  .promo-input {
+    flex: 1; background: var(--black); border: 1px solid var(--border);
+    color: var(--white); padding: 12px 16px;
+    font-family: 'Barlow Condensed', sans-serif; font-size: 14px;
+    letter-spacing: 2px; text-transform: uppercase;
+    outline: none;
+  }
+  .promo-input:focus { border-color: var(--red); }
+  .promo-btn {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px; letter-spacing: 3px; text-transform: uppercase;
+    background: var(--gray2); border: 1px solid var(--border);
+    color: var(--white); padding: 12px 20px; cursor: pointer;
+    transition: background 0.2s;
+  }
+  .promo-btn:hover { background: var(--gray); }
+  .empty-cart {
+    text-align: center; padding: 100px 48px;
+  }
+  .empty-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 60px; letter-spacing: 4px; color: var(--muted);
+    margin-bottom: 16px;
+  }
+
+  /* ====== CHECKOUT ====== */
+  .checkout-layout { display: grid; grid-template-columns: 1fr 400px; gap: 2px; }
+  .checkout-form-wrap { padding: 60px 48px; }
+  .checkout-summary { padding: 60px 40px; background: var(--gray); }
+  .form-section { margin-bottom: 48px; }
+  .form-section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px; letter-spacing: 4px; margin-bottom: 24px;
+    padding-bottom: 12px; border-bottom: 1px solid var(--border);
+  }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .form-row.full { grid-template-columns: 1fr; }
+  .form-group { display: flex; flex-direction: column; gap: 8px; }
+  .form-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px; letter-spacing: 4px; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .form-input, .form-select {
+    background: var(--gray); border: 1px solid var(--border);
+    color: var(--white); padding: 14px 16px;
+    font-family: 'Barlow', sans-serif; font-size: 14px;
+    outline: none; transition: border-color 0.2s;
+    appearance: none;
+  }
+  .form-input:focus, .form-select:focus { border-color: var(--red); }
+  .form-select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; }
+
+  /* PAYMENT */
+  .payment-methods { margin-bottom: 28px; }
+  .pm-tab-row { display: flex; gap: 2px; margin-bottom: 24px; flex-wrap: wrap; }
+  .pm-tab {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px; letter-spacing: 3px; text-transform: uppercase;
+    padding: 12px 20px; border: 1px solid var(--border);
+    background: none; color: var(--muted); cursor: pointer;
+    transition: all 0.2s; flex: 1; min-width: 80px; text-align: center;
+  }
+  .pm-tab.active { background: var(--red); border-color: var(--red); color: #fff; }
+  .pm-tab:hover:not(.active) { border-color: var(--muted); color: var(--white); }
+  .pm-panel { display: none; }
+  .pm-panel.active { display: block; }
+
+  /* COD */
+  .cod-box {
+    background: var(--gray2); border: 1px solid var(--border);
+    padding: 28px; text-align: center;
+  }
+  .cod-icon { font-size: 48px; margin-bottom: 16px; }
+  .cod-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px; letter-spacing: 4px; margin-bottom: 8px;
+  }
+  .cod-sub { font-size: 14px; color: var(--muted); }
+
+  /* UPI Scanner */
+  .upi-box {
+    background: var(--gray2); border: 1px solid var(--border);
+    padding: 32px; text-align: center;
+  }
+  .qr-frame {
+    width: 200px; height: 200px; margin: 0 auto 20px;
+    background: var(--white); border: 4px solid var(--white);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .qr-inner {
+    width: 100%; height: 100%;
+    display: grid; grid-template-columns: repeat(10, 1fr);
+    padding: 12px; gap: 2px;
+  }
+  .qr-cell { border-radius: 1px; }
+  .qr-logo {
+    position: absolute;
+    width: 44px; height: 44px;
+    background: var(--red);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 14px; letter-spacing: 1px; color: #fff;
+    border: 3px solid var(--white);
+  }
+  .upi-id {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px; letter-spacing: 2px; color: var(--white);
+    margin-bottom: 6px;
+  }
+  .upi-sub { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+  .upi-apps { display: flex; justify-content: center; gap: 16px; }
+  .upi-app {
+    background: var(--gray); border: 1px solid var(--border);
+    padding: 10px 16px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--muted); cursor: pointer; transition: all 0.2s;
+  }
+  .upi-app:hover { border-color: var(--red); color: var(--white); }
+
+  /* Card */
+  .card-form { }
+  .card-visual {
+    background: linear-gradient(135deg, #1a0000 0%, #2d0a0a 50%, #0a0a0a 100%);
+    border: 1px solid rgba(255,42,31,0.2);
+    padding: 28px 32px; margin-bottom: 24px;
+    position: relative; overflow: hidden;
+  }
+  .card-visual::before {
+    content: 'N9NE';
+    position: absolute; right: 28px; top: 24px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px; letter-spacing: 4px; color: rgba(255,42,31,0.4);
+  }
+  .card-chip {
+    width: 40px; height: 30px; background: rgba(255,200,0,0.6);
+    border-radius: 4px; margin-bottom: 24px;
+  }
+  .card-num-display {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px; letter-spacing: 6px; color: rgba(255,255,255,0.5);
+    margin-bottom: 16px; word-spacing: 12px;
+  }
+  .card-bottom { display: flex; justify-content: space-between; align-items: flex-end; }
+  .card-holder-label { font-size: 10px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; }
+  .card-holder-val { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; letter-spacing: 2px; text-transform: uppercase; }
+
+  /* ORDER SUCCESS */
+  .order-success {
+    min-height: calc(100vh - 80px);
+    display: flex; align-items: center; justify-content: center;
+    text-align: center;
+  }
+  .success-inner { max-width: 560px; padding: 40px; }
+  .success-icon {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: rgba(255,42,31,0.1); border: 2px solid var(--red);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 28px; font-size: 32px;
+  }
+  .success-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 64px; letter-spacing: 6px; margin-bottom: 16px;
+  }
+  .success-sub { font-size: 15px; color: var(--muted); margin-bottom: 40px; line-height: 1.8; }
+  .order-id {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px; letter-spacing: 4px; text-transform: uppercase;
+    color: var(--red); margin-bottom: 32px;
+  }
+  .order-details-box {
+    background: var(--gray); border: 1px solid var(--border);
+    padding: 24px; text-align: left; margin-bottom: 32px;
+  }
+  .od-row {
+    display: flex; justify-content: space-between; padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-family: 'Barlow Condensed', sans-serif; font-size: 15px;
+  }
+  .od-row:last-child { border: none; }
+  .od-row span:first-child { color: var(--muted); }
+
+  /* ABOUT */
+  .about-hero {
+    padding: 100px 48px;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a0000 100%);
+    position: relative; overflow: hidden;
+  }
+  .about-hero::before {
+    content: 'N9NE';
+    position: absolute; right: -20px; top: 50%; transform: translateY(-50%);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(160px, 20vw, 280px); letter-spacing: 8px;
+    color: rgba(255,42,31,0.04); white-space: nowrap;
+    pointer-events: none;
+  }
+  .about-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 8vw, 100px); letter-spacing: 6px;
+    max-width: 700px; line-height: 0.9;
+  }
+  .about-text {
+    font-size: 16px; line-height: 1.9; color: var(--muted);
+    max-width: 560px; margin-top: 36px;
+  }
+  .values-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px;
+    margin-top: 60px;
+  }
+  .value-card {
+    padding: 40px 32px; background: var(--gray);
+    border-top: 3px solid var(--red);
+  }
+  .value-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 60px; letter-spacing: 4px; color: rgba(255,42,31,0.2);
+    margin-bottom: 16px;
+  }
+  .value-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px; letter-spacing: 4px; margin-bottom: 12px;
+  }
+  .value-desc { font-size: 14px; color: var(--muted); line-height: 1.7; }
+
+  /* FOOTER */
+  footer {
+    background: var(--gray); border-top: 1px solid var(--border);
+    padding: 60px 48px 32px;
+  }
+  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 60px; margin-bottom: 48px; }
+  .footer-brand {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 40px; letter-spacing: 6px; margin-bottom: 16px;
+  }
+  .footer-brand span { color: var(--red); }
+  .footer-desc { font-size: 14px; color: var(--muted); line-height: 1.7; }
+  .footer-col-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px; letter-spacing: 4px; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 20px;
+  }
+  .footer-links { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .footer-links li a {
+    font-size: 14px; color: var(--muted); text-decoration: none;
+    transition: color 0.2s; cursor: pointer;
+  }
+  .footer-links li a:hover { color: var(--white); }
+  .footer-bottom {
+    padding-top: 24px; border-top: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px; letter-spacing: 2px; color: var(--muted);
+  }
+
+  /* TOAST */
+  #toast {
+    position: fixed; bottom: 32px; right: 32px; z-index: 9999;
+    background: var(--red); color: #fff;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px; letter-spacing: 3px; text-transform: uppercase;
+    padding: 14px 24px;
+    transform: translateY(80px); opacity: 0;
+    transition: all 0.3s;
+  }
+  #toast.show { transform: translateY(0); opacity: 1; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  @media (max-width: 768px) {
+    nav { padding: 16px 24px; }
+    .nav-links { display: none; }
+    .section, .cart-items, .checkout-form-wrap { padding: 60px 24px; }
+    .cart-layout, .checkout-layout, #product-detail { grid-template-columns: 1fr; }
+    .cart-summary, .checkout-summary { padding: 40px 24px; }
+    .pd-info { padding: 40px 24px; }
+    .form-row { grid-template-columns: 1fr; }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+    .values-grid { grid-template-columns: 1fr; }
+    .shop-header, .filter-bar { padding: 40px 24px 20px; }
+    .shop-grid { padding: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="toast">Added to cart</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo" onclick="showPage('home')">N<span>9</span>NE</div>
+  <ul class="nav-links">
+    <li><a onclick="showPage('shop')">Shop</a></li>
+    <li><a onclick="showPage('collections')">Collections</a></li>
+    <li><a onclick="showPage('about')">About</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="cart-btn" onclick="showPage('cart')">
+      Bag <span class="cart-count" id="cart-count">0</span>
+    </button>
+  </div>
+</nav>
+
+<!-- ===== HOME PAGE ===== -->
+<div id="page-home" class="page active">
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+    <div class="hero-content">
+      <p class="hero-eyebrow">New Collection — SS 2025</p>
+      <h1 class="hero-title">N<span class="nine">9</span>NE</h1>
+      <p class="hero-sub">Wear the number. Own the identity.</p>
+      <button class="btn-primary" onclick="showPage('shop')">Shop Now</button>
+      <button class="btn-outline" onclick="showPage('collections')">View Lookbook</button>
+    </div>
+  </section>
+
+  <div class="marquee-wrap">
+    <div class="marquee-inner">
+      <span class="marquee-item">N<span>9</span>NE CLOTHING</span>
+      <span class="marquee-item">FREE DELIVERY ABOVE ₹999</span>
+      <span class="marquee-item">NEW DROP — SS 2025</span>
+      <span class="marquee-item">COD AVAILABLE</span>
+      <span class="marquee-item">N<span>9</span>NE CLOTHING</span>
+      <span class="marquee-item">FREE DELIVERY ABOVE ₹999</span>
+      <span class="marquee-item">NEW DROP — SS 2025</span>
+      <span class="marquee-item">COD AVAILABLE</span>
+      <span class="marquee-item">N<span>9</span>NE CLOTHING</span>
+      <span class="marquee-item">FREE DELIVERY ABOVE ₹999</span>
+      <span class="marquee-item">NEW DROP — SS 2025</span>
+      <span class="marquee-item">COD AVAILABLE</span>
+    </div>
+  </div>
+
+  <section class="section">
+    <p class="section-label">Featured</p>
+    <h2 class="section-title">New Arrivals</h2>
+    <div class="product-grid" id="home-products"></div>
+  </section>
+
+  <footer>
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">N<span>9</span>NE</div>
+        <p class="footer-desc">Bold clothing for bold people. N9NE is more than a brand — it's a statement. Wear the number. Own the identity.</p>
+      </div>
+      <div>
+        <p class="footer-col-title">Shop</p>
+        <ul class="footer-links">
+          <li><a onclick="showPage('shop')">All Products</a></li>
+          <li><a>Tees</a></li>
+          <li><a>Hoodies</a></li>
+          <li><a>Bottoms</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="footer-col-title">Info</p>
+        <ul class="footer-links">
+          <li><a onclick="showPage('about')">About Us</a></li>
+          <li><a>Size Guide</a></li>
+          <li><a>Returns</a></li>
+          <li><a>Track Order</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="footer-col-title">Contact</p>
+        <ul class="footer-links">
+          <li><a>Instagram</a></li>
+          <li><a>support@n9ne.in</a></li>
+          <li><a>+91 98765 43210</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 N9NE Clothing. All rights reserved.</span>
+      <span>Made in India</span>
+    </div>
+  </footer>
+</div>
+
+<!-- ===== SHOP PAGE ===== -->
+<div id="page-shop" class="page">
+  <div class="shop-header">
+    <div>
+      <p class="section-label">All Products</p>
+      <h2 class="section-title" style="margin-bottom:0">Shop</h2>
+    </div>
+    <span style="font-family:'Barlow Condensed',sans-serif;font-size:14px;color:var(--muted);letter-spacing:2px;" id="product-count"></span>
+  </div>
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="filterProducts('all', this)">All</button>
+    <button class="filter-btn" onclick="filterProducts('tee', this)">Tees</button>
+    <button class="filter-btn" onclick="filterProducts('hoodie', this)">Hoodies</button>
+    <button class="filter-btn" onclick="filterProducts('bottom', this)">Bottoms</button>
+    <button class="filter-btn" onclick="filterProducts('jacket', this)">Jackets</button>
+  </div>
+  <div class="shop-grid">
+    <div class="product-grid" id="shop-products"></div>
+  </div>
+</div>
+
+<!-- ===== COLLECTIONS PAGE ===== -->
+<div id="page-collections" class="page">
+  <section class="section">
+    <p class="section-label">SS 2025</p>
+    <h2 class="section-title">Lookbook</h2>
+    <div class="product-grid" id="coll-products"></div>
+  </section>
+</div>
+
+<!-- ===== PRODUCT DETAIL PAGE ===== -->
+<div id="page-product" class="page">
+  <div id="product-detail">
+    <div class="pd-image" id="pd-image"></div>
+    <div class="pd-info">
+      <p class="pd-brand">N9NE Clothing</p>
+      <h2 class="pd-name" id="pd-name"></h2>
+      <p class="pd-price" id="pd-price"></p>
+      <p class="pd-desc" id="pd-desc"></p>
+      <p class="size-label">Select Size</p>
+      <div class="size-options">
+        <button class="size-btn" onclick="selectSize(this)">XS</button>
+        <button class="size-btn active" onclick="selectSize(this)">S</button>
+        <button class="size-btn" onclick="selectSize(this)">M</button>
+        <button class="size-btn" onclick="selectSize(this)">L</button>
+        <button class="size-btn" onclick="selectSize(this)">XL</button>
+        <button class="size-btn" onclick="selectSize(this)">XXL</button>
+      </div>
+      <div class="qty-row">
+        <p style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--muted);">Quantity</p>
+        <div class="qty-ctrl">
+          <button onclick="changeQty(-1)">−</button>
+          <span id="qty-val">1</span>
+          <button onclick="changeQty(1)">+</button>
+        </div>
+      </div>
+      <div class="pd-actions">
+        <button class="btn-primary" onclick="addCurrentToCart()">Add to Bag</button>
+        <button class="btn-outline" onclick="addCurrentToCart(); showPage('cart')">Buy Now</button>
+      </div>
+      <div style="margin-top:28px;padding-top:24px;border-top:1px solid var(--border);">
+        <p style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);">Free delivery on orders above ₹999 &nbsp;·&nbsp; Easy 7-day returns &nbsp;·&nbsp; COD available</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CART PAGE ===== -->
+<div id="page-cart" class="page">
+  <div id="cart-empty" class="empty-cart" style="display:none;">
+    <p class="empty-title">Your Bag is Empty</p>
+    <p style="color:var(--muted);margin-bottom:32px;">Add some pieces to get started.</p>
+    <button class="btn-primary" onclick="showPage('shop')">Continue Shopping</button>
+  </div>
+  <div id="cart-full" class="cart-layout">
+    <div class="cart-items">
+      <p class="section-label">Review</p>
+      <h2 style="font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:4px;margin-bottom:32px;">Your Bag</h2>
+      <div id="cart-items-list"></div>
+      <button class="btn-outline" onclick="showPage('shop')" style="margin-top:32px;">Continue Shopping</button>
+    </div>
+    <div class="cart-summary">
+      <h3 class="summary-title">Order Summary</h3>
+      <div class="summary-row"><span>Subtotal</span><span id="cart-subtotal">₹0</span></div>
+      <div class="summary-row"><span>Shipping</span><span id="cart-shipping">₹99</span></div>
+      <div class="summary-row"><span>Discount</span><span id="cart-discount" style="color:#4CAF50;">−₹0</span></div>
+      <div class="promo-row">
+        <input class="promo-input" placeholder="Promo Code" id="promo-input">
+        <button class="promo-btn" onclick="applyPromo()">Apply</button>
+      </div>
+      <div class="summary-row total"><span>Total</span><span id="cart-total">₹0</span></div>
+      <button class="btn-primary" style="width:100%;margin-top:24px;padding:18px;" onclick="showPage('checkout')">Proceed to Checkout</button>
+      <p style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);text-align:center;margin-top:16px;">Secure Checkout · COD Available</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CHECKOUT PAGE ===== -->
+<div id="page-checkout" class="page">
+  <div class="checkout-layout">
+    <div class="checkout-form-wrap">
+      <p class="section-label">Step 1 of 2</p>
+      <h2 style="font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:4px;margin-bottom:40px;">Checkout</h2>
+
+      <div class="form-section">
+        <h3 class="form-section-title">Delivery Info</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">First Name</label>
+            <input class="form-input" placeholder="Arjun" id="fn">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last Name</label>
+            <input class="form-input" placeholder="Singh" id="ln">
+          </div>
+        </div>
+        <div class="form-row full">
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input class="form-input" type="email" placeholder="arjun@email.com" id="email">
+          </div>
+        </div>
+        <div class="form-row full">
+          <div class="form-group">
+            <label class="form-label">Phone</label>
+            <input class="form-input" type="tel" placeholder="+91 98765 43210" id="phone">
+          </div>
+        </div>
+        <div class="form-row full">
+          <div class="form-group">
+            <label class="form-label">Address Line 1</label>
+            <input class="form-input" placeholder="Building, Street" id="addr1">
+          </div>
+        </div>
+        <div class="form-row full">
+          <div class="form-group">
+            <label class="form-label">Address Line 2</label>
+            <input class="form-input" placeholder="Landmark, Area (optional)" id="addr2">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">City</label>
+            <input class="form-input" placeholder="Mumbai" id="city">
+          </div>
+          <div class="form-group">
+            <label class="form-label">PIN Code</label>
+            <input class="form-input" placeholder="400001" id="pin">
+          </div>
+        </div>
+        <div class="form-row full">
+          <div class="form-group">
+            <label class="form-label">State</label>
+            <select class="form-select form-input" id="state">
+              <option value="">Select State</option>
+              <option>Maharashtra</option><option>Delhi</option>
+              <option>Karnataka</option><option>Tamil Nadu</option>
+              <option>Gujarat</option><option>Rajasthan</option>
+              <option>Uttar Pradesh</option><option>West Bengal</option>
+              <option>Telangana</option><option>Punjab</option>
+              <option>Haryana</option><option>Madhya Pradesh</option>
+              <option>Andhra Pradesh</option><option>Kerala</option>
+              <option>Bihar</option><option>Odisha</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3 class="form-section-title">Payment Method</h3>
+        <div class="payment-methods">
+          <div class="pm-tab-row">
+            <button class="pm-tab active" onclick="switchPM('cod',this)">COD</button>
+            <button class="pm-tab" onclick="switchPM('upi',this)">UPI / QR</button>
+            <button class="pm-tab" onclick="switchPM('card',this)">Card</button>
+            <button class="pm-tab" onclick="switchPM('wallet',this)">Wallet</button>
+            <button class="pm-tab" onclick="switchPM('emi',this)">EMI</button>
+          </div>
+
+          <!-- COD -->
+          <div class="pm-panel active" id="pm-cod">
+            <div class="cod-box">
+              <div class="cod-icon">🏠</div>
+              <p class="cod-title">Cash on Delivery</p>
+              <p class="cod-sub">Pay when your order arrives at your doorstep.<br>Available for orders up to ₹5,000. Extra ₹49 COD fee applies.</p>
+              <div style="margin-top:20px;padding:14px;background:rgba(255,42,31,0.08);border:1px solid rgba(255,42,31,0.2);">
+                <p style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--red);">COD Fee: ₹49 will be added at checkout</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- UPI / QR -->
+          <div class="pm-panel" id="pm-upi">
+            <div class="upi-box">
+              <p style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--muted);margin-bottom:20px;">Scan to Pay</p>
+              <div class="qr-frame">
+                <div class="qr-inner" id="qr-grid"></div>
+                <div class="qr-logo">N9NE</div>
+              </div>
+              <p class="upi-id">n9neclothing@upi</p>
+              <p class="upi-sub">Scan using any UPI app or pay via UPI ID</p>
+              <div class="upi-apps">
+                <div class="upi-app">GPay</div>
+                <div class="upi-app">PhonePe</div>
+                <div class="upi-app">Paytm</div>
+                <div class="upi-app">BHIM</div>
+              </div>
+              <div style="margin-top:20px;">
+                <div class="form-group">
+                  <label class="form-label">Or enter your UPI ID</label>
+                  <input class="form-input" placeholder="yourname@bankname" style="text-align:center;">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card -->
+          <div class="pm-panel" id="pm-card">
+            <div class="card-form">
+              <div class="card-visual">
+                <div class="card-chip"></div>
+                <div class="card-num-display" id="card-num-display">•••• •••• •••• ••••</div>
+                <div class="card-bottom">
+                  <div>
+                    <p class="card-holder-label">Cardholder</p>
+                    <p class="card-holder-val" id="card-name-display">YOUR NAME</p>
+                  </div>
+                  <div style="text-align:right;">
+                    <p class="card-holder-label">Expires</p>
+                    <p class="card-holder-val" id="card-exp-display">MM / YY</p>
+                  </div>
+                </div>
+              </div>
+              <div class="form-row full" style="margin-bottom:16px;">
+                <div class="form-group">
+                  <label class="form-label">Card Number</label>
+                  <input class="form-input" placeholder="1234 5678 9012 3456" id="card-num" maxlength="19" oninput="updateCard()">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Name on Card</label>
+                  <input class="form-input" placeholder="Arjun Singh" id="card-name" oninput="updateCard()">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Expiry (MM/YY)</label>
+                  <input class="form-input" placeholder="08 / 27" id="card-exp" maxlength="7" oninput="updateCard()">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">CVV</label>
+                  <input class="form-input" placeholder="•••" maxlength="3" type="password">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Card Type</label>
+                  <select class="form-select form-input">
+                    <option>Auto Detect</option>
+                    <option>Visa</option>
+                    <option>Mastercard</option>
+                    <option>RuPay</option>
+                    <option>Amex</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Wallet -->
+          <div class="pm-panel" id="pm-wallet">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+              <div onclick="selectWallet(this)" class="upi-app" style="padding:20px;text-align:center;border:1px solid var(--border);">
+                <p style="font-size:24px;margin-bottom:8px;">📱</p>
+                <p style="font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:2px;">Paytm</p>
+              </div>
+              <div onclick="selectWallet(this)" class="upi-app" style="padding:20px;text-align:center;border:1px solid var(--border);">
+                <p style="font-size:24px;margin-bottom:8px;">💼</p>
+                <p style="font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:2px;">Amazon Pay</p>
+              </div>
+              <div onclick="selectWallet(this)" class="upi-app" style="padding:20px;text-align:center;border:1px solid var(--border);">
+                <p style="font-size:24px;margin-bottom:8px;">🔵</p>
+                <p style="font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:2px;">Mobikwik</p>
+              </div>
+              <div onclick="selectWallet(this)" class="upi-app" style="padding:20px;text-align:center;border:1px solid var(--border);">
+                <p style="font-size:24px;margin-bottom:8px;">🌐</p>
+                <p style="font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:2px;">PayPal</p>
+              </div>
+              <div onclick="selectWallet(this)" class="upi-app" style="padding:20px;text-align:center;border:1px solid var(--border);">
+                <p style="font-size:24px;margin-bottom:8px;">🏦</p>
+                <p style="font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:2px;">Net Banking</p>
+              </div>
+              <div onclick="selectWallet(this)" class="upi-app" style="padding:20px;text-align:center;border:1px solid var(--border);">
+                <p style="font-size:24px;margin-bottom:8px;">💳</p>
+                <p style="font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:2px;">Freecharge</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- EMI -->
+          <div class="pm-panel" id="pm-emi">
+            <div style="background:var(--gray2);border:1px solid var(--border);padding:28px;">
+              <p style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;">No Cost EMI Options</p>
+              <div id="emi-options"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-primary" style="width:100%;padding:20px;font-size:15px;letter-spacing:4px;" onclick="placeOrder()">
+        Place Order →
+      </button>
+      <p style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);text-align:center;margin-top:12px;">256-bit SSL Encrypted · Your data is safe</p>
+    </div>
+
+    <div class="checkout-summary">
+      <h3 class="summary-title">Order</h3>
+      <div id="checkout-items-preview" style="margin-bottom:24px;"></div>
+      <div class="summary-row"><span>Subtotal</span><span id="co-subtotal">₹0</span></div>
+      <div class="summary-row"><span>Shipping</span><span id="co-shipping">₹99</span></div>
+      <div class="summary-row total" style="margin-top:0;"><span>Total</span><span id="co-total">₹0</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ORDER SUCCESS PAGE ===== -->
+<div id="page-success" class="page">
+  <div class="order-success">
+    <div class="success-inner">
+      <div class="success-icon">✓</div>
+      <h2 class="success-title">Order Placed!</h2>
+      <p class="order-id" id="order-id-display"></p>
+      <p class="success-sub">Thank you for shopping with N9NE.<br>You'll receive a confirmation on your phone and email shortly.</p>
+      <div class="order-details-box" id="order-details-box"></div>
+      <button class="btn-primary" onclick="showPage('shop')">Continue Shopping</button>
+      <button class="btn-outline" onclick="showPage('home')" style="margin-left:12px;">Back to Home</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ABOUT PAGE ===== -->
+<div id="page-about" class="page">
+  <div class="about-hero">
+    <p class="section-label">Our Story</p>
+    <h2 class="about-title">Nine is not just a number.</h2>
+    <p class="about-text">N9NE was born from the belief that streetwear should carry weight — not just fabric. Every piece we make is designed for those who move through the world on their own terms. The number nine represents the edge, the limit, the almost-impossible. We live there.</p>
+    <div class="values-grid">
+      <div class="value-card">
+        <p class="value-num">01</p>
+        <h3 class="value-name">Bold Identity</h3>
+        <p class="value-desc">Every stitch reflects a statement. N9NE clothing is designed to be seen, remembered, and respected.</p>
+      </div>
+      <div class="value-card">
+        <p class="value-num">02</p>
+        <h3 class="value-name">Quality First</h3>
+        <p class="value-desc">We use premium fabrics that last — heavyweight cotton, reinforced seams, and detail-obsessed construction.</p>
+      </div>
+      <div class="value-card">
+        <p class="value-num">03</p>
+        <h3 class="value-name">Made in India</h3>
+        <p class="value-desc">Designed and manufactured in India. Supporting local craft while building a global brand.</p>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="footer-bottom">
+      <span>© 2025 N9NE Clothing. All rights reserved.</span>
+      <span>Made in India</span>
+    </div>
+  </footer>
+</div>
+
+<script>
+// ============ DATA ============
+const products = [
+  { id:1, name:'N9NE Core Tee', price:799, category:'tee', color:'#1a1a1a', label:'Bestseller', desc:'The signature N9NE Core Tee. 100% heavyweight combed cotton, 240 GSM. Boxy oversized fit with dropped shoulders. Screen-printed N9NE logo on chest.' },
+  { id:2, name:'Red Nine Hoodie', price:1899, category:'hoodie', color:'#2d0000', label:'New', desc:'Heavy fleece hoodie in our signature red. 380 GSM French terry fabric. Double-lined hood, kangaroo pocket with zip closure.' },
+  { id:3, name:'Block Cargo Pants', price:2299, category:'bottom', color:'#111', label:'', desc:'Technical ripstop cargo pants with 6 utility pockets. Adjustable drawstring waist, zip ankle cuffs. Built for the streets.' },
+  { id:4, name:'Nine Arch Tee', price:899, category:'tee', color:'#0a0a0a', label:'', desc:'Graphic tee with the N9NE arch logo across the back. Soft ringspun cotton, regular fit.' },
+  { id:5, name:'Track Jacket', price:2599, category:'jacket', color:'#1a0000', label:'Limited', desc:'Woven track jacket with contrast red stripe. Full zip, mesh lining, embroidered N9NE crest.' },
+  { id:6, name:'N9NE Logo Shorts', price:999, category:'bottom', color:'#1c1c1c', label:'', desc:'French terry shorts with N9NE wordmark print. Elastic waistband with drawstring. 7-inch inseam.' },
+  { id:7, name:'Oversized Hoodie', price:1699, category:'hoodie', color:'#0a0a0a', label:'', desc:'Clean-cut oversized hoodie with subtle tonal N9NE embroidery. 320 GSM fleece, ribbed cuffs and hem.' },
+  { id:8, name:'Varsity Jacket', price:3499, category:'jacket', color:'#1a0000', label:'New', desc:'Wool-blend varsity jacket with leather sleeves. N9NE chenille patch on back. Snap button front closure.' },
+];
+
+let cart = [];
+let currentProduct = null;
+let currentQty = 1;
+let currentSize = 'S';
+let discount = 0;
+
+// ============ CURSOR ============
+const cursor = document.getElementById('cursor');
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top = e.clientY + 'px';
+});
+document.addEventListener('mouseover', e => {
+  if(e.target.matches('button, a, .product-card, .filter-btn, .pm-tab')) cursor.classList.add('big');
+});
+document.addEventListener('mouseout', () => cursor.classList.remove('big'));
+
+// ============ PAGES ============
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  window.scrollTo(0,0);
+  if(name === 'shop') renderShop(null);
+  if(name === 'home') renderHomeProducts();
+  if(name === 'collections') renderCollections();
+  if(name === 'cart') renderCart();
+  if(name === 'checkout') renderCheckout();
+}
+
+// ============ PRODUCT CARD ============
+function makeCard(p) {
+  const colors = ['#FF2A1F','#ffffff','#888888'];
+  const bg = p.color;
+  return `
+    <div class="product-card" onclick="openProduct(${p.id})">
+      <div class="product-img-placeholder" style="background:${bg};color:${bg==='#ffffff'?'#111':'rgba(255,255,255,0.12)'};">N9NE</div>
+      ${p.label ? `<div class="product-tag">${p.label}</div>` : ''}
+      <div class="add-to-cart-overlay"><button onclick="event.stopPropagation();quickAdd(${p.id})">+ Add</button></div>
+      <div class="product-overlay">
+        <div class="product-name">${p.name}</div>
+        <div class="product-price">₹${p.price.toLocaleString()}</div>
+      </div>
+    </div>`;
+}
+
+function renderHomeProducts() {
+  document.getElementById('home-products').innerHTML = products.slice(0,4).map(makeCard).join('');
+}
+function renderShop(filter) {
+  const list = filter ? products.filter(p => p.category === filter) : products;
+  document.getElementById('shop-products').innerHTML = list.map(makeCard).join('');
+  document.getElementById('product-count').textContent = list.length + ' Products';
+}
+function renderCollections() {
+  document.getElementById('coll-products').innerHTML = products.map(makeCard).join('');
+}
+
+// ============ FILTER ============
+function filterProducts(cat, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderShop(cat === 'all' ? null : cat);
+}
+
+// ============ PRODUCT DETAIL ============
+function openProduct(id) {
+  currentProduct = products.find(p => p.id === id);
+  currentQty = 1;
+  currentSize = 'S';
+  document.getElementById('pd-image').textContent = 'N9NE';
+  document.getElementById('pd-image').style.background = currentProduct.color;
+  document.getElementById('pd-image').style.color = currentProduct.color === '#ffffff' ? '#111' : 'rgba(255,255,255,0.1)';
+  document.getElementById('pd-name').textContent = currentProduct.name;
+  document.getElementById('pd-price').textContent = '₹' + currentProduct.price.toLocaleString();
+  document.getElementById('pd-desc').textContent = currentProduct.desc;
+  document.getElementById('qty-val').textContent = '1';
+  document.querySelectorAll('.size-btn').forEach(b => { b.classList.remove('active'); if(b.textContent==='S') b.classList.add('active'); });
+  showPage('product');
+}
+
+function selectSize(btn) {
+  document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentSize = btn.textContent;
+}
+
+function changeQty(d) {
+  currentQty = Math.max(1, currentQty + d);
+  document.getElementById('qty-val').textContent = currentQty;
+}
+
+function addCurrentToCart() {
+  if(!currentProduct) return;
+  const existing = cart.find(c => c.id === currentProduct.id && c.size === currentSize);
+  if(existing) existing.qty += currentQty;
+  else cart.push({ ...currentProduct, qty: currentQty, size: currentSize });
+  updateCartCount();
+  showToast('Added to bag — ' + currentProduct.name);
+}
+
+function quickAdd(id) {
+  const p = products.find(x => x.id === id);
+  const existing = cart.find(c => c.id === id && c.size === 'M');
+  if(existing) existing.qty++;
+  else cart.push({ ...p, qty:1, size:'M' });
+  updateCartCount();
+  showToast(p.name + ' added');
+}
+
+// ============ CART ============
+function updateCartCount() {
+  const total = cart.reduce((a,b) => a + b.qty, 0);
+  document.getElementById('cart-count').textContent = total;
+}
+
+function renderCart() {
+  const subtotal = cart.reduce((a,b) => a + b.price * b.qty, 0);
+  const shipping = subtotal >= 999 ? 0 : 99;
+  const total = subtotal + shipping - discount;
+
+  if(cart.length === 0) {
+    document.getElementById('cart-empty').style.display = 'block';
+    document.getElementById('cart-full').style.display = 'none';
+    return;
+  }
+  document.getElementById('cart-empty').style.display = 'none';
+  document.getElementById('cart-full').style.display = 'grid';
+
+  document.getElementById('cart-items-list').innerHTML = cart.map((item, i) => `
+    <div class="cart-item">
+      <div class="cart-item-img" style="background:${item.color};">
+        <span style="font-size:14px;color:rgba(255,255,255,0.3);">N9NE</span>
+      </div>
+      <div>
+        <div class="cart-item-name">${item.name}</div>
+        <div class="cart-item-meta">Size: ${item.size} &nbsp;·&nbsp; Qty: ${item.qty}</div>
+        <div style="display:flex;gap:8px;margin-top:8px;align-items:center;">
+          <button onclick="changeCartQty(${i},-1)" style="background:var(--gray2);border:1px solid var(--border);color:var(--white);width:28px;height:28px;cursor:pointer;font-size:16px;">−</button>
+          <span style="font-family:'Barlow Condensed',sans-serif;font-size:15px;">${item.qty}</span>
+          <button onclick="changeCartQty(${i},1)" style="background:var(--gray2);border:1px solid var(--border);color:var(--white);width:28px;height:28px;cursor:pointer;font-size:16px;">+</button>
+        </div>
+      </div>
+      <div>
+        <div class="cart-item-price">₹${(item.price * item.qty).toLocaleString()}</div>
+        <button class="cart-remove" onclick="removeFromCart(${i})">✕ Remove</button>
+      </div>
+    </div>`).join('');
+
+  document.getElementById('cart-subtotal').textContent = '₹' + subtotal.toLocaleString();
+  document.getElementById('cart-shipping').textContent = shipping === 0 ? 'FREE' : '₹' + shipping;
+  document.getElementById('cart-discount').textContent = '−₹' + discount;
+  document.getElementById('cart-total').textContent = '₹' + total.toLocaleString();
+}
+
+function changeCartQty(i, d) {
+  cart[i].qty = Math.max(1, cart[i].qty + d);
+  renderCart();
+  updateCartCount();
+}
+
+function removeFromCart(i) {
+  cart.splice(i, 1);
+  renderCart();
+  updateCartCount();
+}
+
+function applyPromo() {
+  const code = document.getElementById('promo-input').value.toUpperCase();
+  if(code === 'N9NE10') { discount = 100; showToast('₹100 off applied!'); }
+  else if(code === 'FIRST') { discount = 200; showToast('₹200 first order discount!'); }
+  else { showToast('Invalid promo code'); return; }
+  renderCart();
+}
+
+// ============ CHECKOUT ============
+function renderCheckout() {
+  const subtotal = cart.reduce((a,b) => a + b.price * b.qty, 0);
+  const shipping = subtotal >= 999 ? 0 : 99;
+  const total = subtotal + shipping - discount;
+
+  document.getElementById('co-subtotal').textContent = '₹' + subtotal.toLocaleString();
+  document.getElementById('co-shipping').textContent = shipping === 0 ? 'FREE' : '₹' + shipping;
+  document.getElementById('co-total').textContent = '₹' + total.toLocaleString();
+
+  document.getElementById('checkout-items-preview').innerHTML = cart.map(item => `
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);">
+      <div style="width:44px;height:44px;background:${item.color};flex-shrink:0;"></div>
+      <div style="flex:1;">
+        <p style="font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:1px;">${item.name}</p>
+        <p style="font-size:12px;color:var(--muted);">Size ${item.size} · Qty ${item.qty}</p>
+      </div>
+      <span style="font-family:'Barlow Condensed',sans-serif;font-size:15px;color:var(--red);">₹${(item.price*item.qty).toLocaleString()}</span>
+    </div>`).join('');
+
+  // EMI options
+  const emiAmounts = [3, 6, 9, 12];
+  document.getElementById('emi-options').innerHTML = emiAmounts.map(m => `
+    <div onclick="selectEMI(this)" style="display:flex;justify-content:space-between;padding:14px;border:1px solid var(--border);margin-bottom:8px;cursor:pointer;transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--red)'" onmouseout="this.style.borderColor='var(--border)'">
+      <span style="font-family:'Barlow Condensed',sans-serif;font-size:15px;letter-spacing:1px;">${m} Months EMI</span>
+      <span style="font-family:'Barlow Condensed',sans-serif;font-size:15px;color:var(--red);">₹${Math.round(total/m).toLocaleString()}/mo</span>
+    </div>`).join('');
+
+  // QR code visual
+  generateQR();
+}
+
+function generateQR() {
+  const grid = document.getElementById('qr-grid');
+  if(!grid) return;
+  const pat = [1,1,1,1,1,1,1,0,1,0,1,0,0,0,1,0,1,0,1,1,1,0,1,0,1,1,1,0,1,0,1,0,1,0,1,0,1,0,1,1,1,1,1,1,1,1,1,0,0,0,1,1,0,1,0,1,1,0,0,0,0,1,0,1,1,0,1,0,1,1,0,1,0,0,0,0,0,0,1,0,1,1,1,0,1,0,1,0,0,1,0,1,0,1,0,0,0,0,1,0];
+  grid.innerHTML = pat.map(v => `<div class="qr-cell" style="background:${v?'#000':'#fff'};"></div>`).join('');
+}
+
+function selectEMI(el) {
+  document.querySelectorAll('#emi-options > div').forEach(d => d.style.borderColor = 'var(--border)');
+  el.style.borderColor = 'var(--red)';
+}
+
+function selectWallet(el) {
+  document.querySelectorAll('.pm-panel#pm-wallet > div > div').forEach(d => {
+    d.style.borderColor = 'var(--border)';
+    d.style.color = 'var(--muted)';
+  });
+  el.style.borderColor = 'var(--red)';
+  el.style.color = 'var(--white)';
+}
+
+// ============ PAYMENT TABS ============
+function switchPM(id, btn) {
+  document.querySelectorAll('.pm-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.pm-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('pm-' + id).classList.add('active');
+}
+
+// ============ CARD LIVE PREVIEW ============
+function updateCard() {
+  const num = document.getElementById('card-num').value.replace(/\s/g,'').replace(/(.{4})/g,'$1 ').trim();
+  document.getElementById('card-num').value = num;
+  const display = num || '•••• •••• •••• ••••';
+  document.getElementById('card-num-display').textContent = display.padEnd(19,'•').substring(0,19) || '•••• •••• •••• ••••';
+  const name = document.getElementById('card-name').value.toUpperCase() || 'YOUR NAME';
+  document.getElementById('card-name-display').textContent = name;
+  const exp = document.getElementById('card-exp').value || 'MM / YY';
+  document.getElementById('card-exp-display').textContent = exp;
+}
+
+// ============ PLACE ORDER ============
+function placeOrder() {
+  const fn = document.getElementById('fn').value;
+  const phone = document.getElementById('phone').value;
+  const city = document.getElementById('city').value;
+  if(!fn || !phone || !city) { showToast('Please fill required fields'); return; }
+
+  const orderId = 'N9NE-' + Date.now().toString().slice(-8).toUpperCase();
+  const subtotal = cart.reduce((a,b) => a + b.price * b.qty, 0);
+  const shipping = subtotal >= 999 ? 0 : 99;
+  const total = subtotal + shipping - discount;
+
+  document.getElementById('order-id-display').textContent = 'Order ID: ' + orderId;
+  document.getElementById('order-details-box').innerHTML = `
+    <div class="od-row"><span>Name</span><span>${fn} ${document.getElementById('ln').value}</span></div>
+    <div class="od-row"><span>Phone</span><span>${phone}</span></div>
+    <div class="od-row"><span>City</span><span>${city}</span></div>
+    <div class="od-row"><span>Items</span><span>${cart.reduce((a,b)=>a+b.qty,0)} item(s)</span></div>
+    <div class="od-row"><span>Shipping</span><span>${shipping === 0 ? 'FREE' : '₹' + shipping}</span></div>
+    <div class="od-row"><span style="color:var(--white);font-weight:600;">Total Paid</span><span style="color:var(--red);font-size:18px;">₹${total.toLocaleString()}</span></div>
+    <div class="od-row"><span>Estimated Delivery</span><span>${getDeliveryDate()}</span></div>`;
+
+  cart = [];
+  discount = 0;
+  updateCartCount();
+  showPage('success');
+}
+
+function getDeliveryDate() {
+  const d = new Date(); d.setDate(d.getDate() + 5);
+  return d.toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'long' });
+}
+
+// ============ TOAST ============
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ============ INIT ============
+renderHomeProducts();
+</script>
+</body>
+</html>
